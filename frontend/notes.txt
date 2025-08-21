@@ -1,0 +1,2 @@
+// Rodar o frontend
+bun run dev

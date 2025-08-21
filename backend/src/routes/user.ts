@@ -1,22 +1,22 @@
 import { Elysia, status, t } from 'elysia';
 import { UserServiceFactory } from '../main/factories/userServiceFactory';
-import { created, internalError, ok } from '../domain/dtos/responses/responseEndpointDto';
+import { internalError, ok } from '../domain/dtos/responses/responseEndpointDto';
 
-export const authRoutes = (app: Elysia) =>
-    app.group('/auth', (app) =>
+export const userRoutes = (app: Elysia) =>
+    app.group('/user', (app) =>
         app
             // Registro
-            .post('/register', async ({ body }) => {
+            .get('/users', async () => {
 
                 const userService = UserServiceFactory.make();
 
                 try {
-                    const result = await userService.registerUser(body);
+                    const result = await userService.getAllUsers();
 
                     if (!result.success)
                         throw new Error(result.message);
 
-                    const response = created(result.data, "Usuário criado com sucesso.");
+                    const response = ok(result.data);
 
                     return status(response.status, response.payload);
                 }
@@ -25,29 +25,19 @@ export const authRoutes = (app: Elysia) =>
 
                     return status(response.status, response.payload);
                 }
-            }, {
-                // Tipar o parametro 'body'
-                body: t.Object({
-                    name: t.String(),
-                    email: t.String({ format: 'email' }),
-                    password: t.String()
-                })
             })
 
-            // Login
-            .post('/login', async ({ body }) => {
+            .delete('', async ({ body }) => {
 
                 const userService = UserServiceFactory.make();
 
-                const { email, password } = body as { email: string; password: string };
-
                 try {
-                    const result = await userService.login(email, password);
+                    const result = await userService.deleteUser(body.email, body.password);
 
                     if (!result.success)
                         throw new Error(result.message);
 
-                    const response = ok(result.data, "Login realizado com sucesso.");
+                    const response = ok(result.data, "Usuário deletado com sucesso.");
 
                     return status(response.status, response.payload);
                 } catch (error) {
@@ -55,9 +45,10 @@ export const authRoutes = (app: Elysia) =>
 
                     return status(response.status, response.payload);
                 }
+
             }, {
                 body: t.Object({
-                    email: t.String(),
+                    email: t.String({ format: 'email' }),
                     password: t.String()
                 })
             })

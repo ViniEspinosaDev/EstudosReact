@@ -1,0 +1,7 @@
+// backend
+configurei no package.json um atalho para Rodar
+bun run dev
+
+// Coisas legais para usar no backend
+RabbitMq - (Queue - Usar assíncronamente)
+SocketIO (WebSocket - Ligação entre frontend e backend. Conexão continua)
