@@ -1,24 +1,43 @@
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import api from "../services/api";
 
 export default function Login() {
+   const [email, setEmail] = useState("");
+   const [password, setPassword] = useState("");
+
+   async function handleLogin(e: React.FormEvent) {
+      e.preventDefault();
+
+      try {
+         const response = await api.post("/auth/login", {
+            email,
+            password,
+         });
+
+         console.log("✅ Login feito:", response.data);
+
+         // exemplo: guardar token no localStorage
+         if (response.data.token) {
+            localStorage.setItem("token", response.data.token);
+            console.log("token", response.data.token);
+         }
+
+         alert("Login realizado com sucesso!");
+      } catch (error) {
+         console.error("❌ Erro no login:", (error as Error).message);
+         alert("Email ou senha incorretos!");
+      }
+   }
+
    return (
-      <div className="flex items-center justify-center h-screen bg-gray-100">
-         <div className="bg-white p-8 rounded-2xl shadow-lg w-96">
-            <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
-            <form className="flex flex-col gap-4">
-               <input type="email" placeholder="Email" className="border p-2 rounded-lg" />
-               <input type="password" placeholder="Senha" className="border p-2 rounded-lg" />
-               <button type="submit" className="bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700">
-                  Entrar
-               </button>
-            </form>
-            <p className="text-sm mt-4 text-center">
-               Não tem conta?{" "}
-               <Link to="/register" className="text-blue-600 underline">
-                  Registrar
-               </Link>
-            </p>
-         </div>
+      <div className="flex flex-col items-center justify-center min-h-screen">
+         <form onSubmit={handleLogin} className="flex flex-col gap-4 w-80">
+            <input type="email" placeholder="E-mail" value={email} onChange={(e) => setEmail(e.target.value)} className="p-2 border rounded" />
+            <input type="password" placeholder="Senha" value={password} onChange={(e) => setPassword(e.target.value)} className="p-2 border rounded" />
+            <button type="submit" className="p-2 bg-green-600 text-white rounded">
+               Entrar
+            </button>
+         </form>
       </div>
    );
 }
